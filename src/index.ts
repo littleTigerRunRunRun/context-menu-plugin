@@ -17,6 +17,7 @@ export type Props<Schemes extends BaseSchemes> = {
   delay?: number
   /** menu items, can be produced by preset */
   items: Items<Schemes>
+  birthFilter?: (x:number, y:number) => { x:number, y:number } // filter the birth place 
 }
 export type RenderMeta = { filled?: boolean }
 
@@ -50,8 +51,11 @@ export class ContextMenuPlugin<Schemes extends BaseSchemes> extends Scope<never,
   /**
    * @param props Properties
    */
+  birthFilter?: (x:number, y:number) => { x:number, y:number }
   constructor(private props: Props<Schemes>) {
     super('context-menu')
+    
+    this.birthFilter = props.birthFilter
   }
 
   setParent(scope: Scope<Requires<Schemes>>): void {
@@ -83,8 +87,9 @@ export class ContextMenuPlugin<Schemes extends BaseSchemes> extends Scope<never,
         const { searchBar, list } = this.props.items(context.data.context, this)
 
         container.appendChild(element)
-        element.style.left = `${context.data.event.clientX}px`
-        element.style.top = `${context.data.event.clientY}px`
+        const { x, y } = (this.birthFilter || ((x, y) => ({ x, y })))(context.data.event.clientX, context.data.event.clientY)
+        element.style.left = `${x}px`
+        element.style.top = `${y}px`
         element.style.display = ''
 
         void parent.emit({
