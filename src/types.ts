@@ -10,6 +10,7 @@ export type Position = { x: number, y: number }
 export type Item = {
   label: string
   key: string
+  status?: () => boolean // 每次打开右键菜单时都会动态求值的
   handler(): void | Promise<void>
   subitems?: Item[]
 }
